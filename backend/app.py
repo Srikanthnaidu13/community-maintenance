@@ -4,7 +4,9 @@ import sqlite3
 import time
 
 app = Flask(__name__)
-app.secret_key = "civicfix_secret_key"
+import os
+app.secret_key = os.environ.get("SECRET_KEY", "civicfix_secret_key")
+
 
 DB = "civicfix.db"
 
