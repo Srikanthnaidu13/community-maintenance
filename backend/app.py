@@ -3,17 +3,23 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import time
 
-app = Flask(__name__)
 import os
+
+app = Flask(__name__)
+
+# ✅ stable secret key (set SECRET_KEY in Render env vars)
 app.secret_key = os.environ.get("SECRET_KEY", "civicfix_secret_key")
 
+# ✅ cookies work on Render (https)
 app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
     SESSION_COOKIE_SECURE=True
 )
 
+# ✅ ALWAYS point to the DB inside backend folder
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB = os.path.join(BASE_DIR, "civicfix.db")
 
-DB = "civicfix.db"
 
 # ---------------- DATABASE ----------------
 def get_db():
@@ -54,6 +60,7 @@ def init_db():
 
     conn.commit()
     conn.close()
+
 def ensure_columns():
     conn = get_db()
     cur = conn.cursor()
@@ -96,7 +103,8 @@ from datetime import datetime
 import os
 from flask import request
 
-UPLOAD_FOLDER = "uploads"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
@@ -204,17 +212,22 @@ def sign():
 # ---------- SIGN UP ----------
 @app.route("/signup", methods=["POST"])
 def signup():
-    data = request.get_json()
-    username = data["username"]
-    email = data["email"]
-    password = generate_password_hash(data["password"])
+    data = request.get_json(silent=True) or {}
+    username = (data.get("username") or "").strip()
+    email = (data.get("email") or "").strip().lower()
+    raw_password = data.get("password") or ""
+
+    if not username or not email or not raw_password:
+        return jsonify({"success": False, "message": "Missing fields"}), 400
+
+    password = generate_password_hash(raw_password)
 
     conn = get_db()
     cur = conn.cursor()
 
     if cur.execute("SELECT id FROM users WHERE email=?", (email,)).fetchone():
         conn.close()
-        return jsonify({"success": False})
+        return jsonify({"success": False, "message": "User already exists"})
 
     cur.execute(
         "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
@@ -225,27 +238,26 @@ def signup():
 
     session["username"] = username
     session["email"] = email
+    session["admin"] = False
 
     return jsonify({"success": True})
 
 # ---------- SIGN IN ----------
 @app.route("/login", methods=["POST"])
 def login():
-    data = request.get_json()
-    email = data["email"]
-    password = data["password"]
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
 
     # ---- ADMIN CHECK ----
     if email == "admin@civicfix.com" and password == "admin123":
         session["admin"] = True
         session["username"] = "Admin"
+        session["email"] = email
         return jsonify({"success": True, "role": "admin"})
 
-    # ---- NORMAL USER ----
     conn = get_db()
-    user = conn.execute(
-        "SELECT * FROM users WHERE email=?", (email,)
-    ).fetchone()
+    user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
     conn.close()
 
     if user and check_password_hash(user["password"], password):
