@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicFix - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+body { min-height:100vh; background:#1f2937; color:white; position:relative; overflow-x:hidden; }
+
+/* Animated background */
+body::before {
+  content:''; position: fixed; top:0; left:0; width:100vw; height:100vh;
+  background: radial-gradient(circle at 20% 20%, rgba(59,130,246,0.1), transparent 40%),
+              radial-gradient(circle at 80% 70%, rgba(16,185,129,0.1), transparent 40%);
+  animation: float 25s linear infinite; z-index:0;
+}
+@keyframes float {0%{transform:translate(0,0);}50%{transform:translate(-50px,50px);}100%{transform:translate(0,0);}}
+
+/* Navbar */
+.navbar { position: fixed; top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:center; padding:15px 40px; background: rgba(31,41,55,0.8); backdrop-filter: blur(10px); z-index:2; }
+.navbar .brand { font-size:36px; font-weight:800; color:#10B981; background:linear-gradient(135deg,#10B981,#3B82F6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.navbar .nav-links a { margin-left:20px; padding:8px 18px; border-radius:12px; text-decoration:none; color:white; font-weight:600; transition:0.3s; }
+.navbar .nav-links a:hover { background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); }
+
+/* Container */
+.container { position:relative; z-index:2; max-width:1200px; margin:100px auto 50px auto; padding:20px; }
+
+/* User Profile / Greeting */
+.user-profile { display:flex; align-items:center; gap:15px; margin-bottom:25px; background: rgba(255,255,255,0.05); backdrop-filter: blur(15px); padding:15px 20px; border-radius:20px; }
+.user-profile img { width:70px; height:70px; border-radius:50%; border:2px solid #10B981; }
+.user-profile .info { display:flex; flex-direction:column; }
+.user-profile .info h2 { color:#10B981; font-size:22px; }
+.user-profile .info p { color:#D1D5DB; font-size:14px; }
+
+/* Search & Filter */
+.filters { display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap; }
+.filters input, .filters select { padding:8px 12px; border-radius:8px; border:none; outline:none; background:#374151; color:white; }
+.filters input::placeholder { color:#9CA3AF; }
+
+/* Stats Cards */
+.stats { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-bottom:30px; }
+.stat-card { flex:1 1 180px; max-width:220px; background: rgba(16,185,129,0.1); padding:20px; border-radius:20px; text-align:center; transition:0.3s; cursor:pointer; box-shadow:0 10px 25px rgba(0,0,0,0.3); }
+.stat-card:hover { transform:translateY(-5px); box-shadow:0 15px 35px rgba(0,0,0,0.4); }
+.stat-card h3 { font-size:24px; color:#10B981; margin-bottom:8px; }
+.stat-card p { font-size:14px; color:#D1D5DB; }
+
+/* Charts */
+.charts { display:flex; flex-wrap:wrap; gap:20px; margin-bottom:30px; justify-content:center; }
+.charts canvas { background: rgba(255,255,255,0.05); border-radius:15px; padding:10px; max-width:480px; width:100%; height:auto; }
+
+/* Complaints Table */
+.table-section { background: rgba(255,255,255,0.05); backdrop-filter: blur(25px); padding:20px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.2); margin-bottom:30px; }
+.table-section h2 { margin-bottom:15px; color:white; font-size:28px; text-align:center; }
+table { width:100%; border-collapse:collapse; }
+th, td { padding:10px 12px; text-align:left; border-bottom:1px solid rgba(255,255,255,0.2); }
+th { color:#10B981; font-size:14px; }
+td { color:#D1D5DB; font-size:13px; }
+tr:hover { background: rgba(16,185,129,0.1); }
+
+/* View Button */
+button.view-btn { padding:5px 10px; border:none; border-radius:8px; cursor:pointer; background:#3B82F6; color:white; font-weight:600; transition:0.3s; }
+button.view-btn:hover { background:#2563EB; }
+
+/* Responsive */
+@media(max-width:768px){ .stats, .charts { flex-direction:column; align-items:center; } }
+.stats .stat-card {
+    flex:1 1 150px;
+    max-width:180px;
+    background: rgba(16,185,129,0.1);
+    padding:20px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+    transition:0.3s;
+}
+
+.charts-panel canvas {
+    background: rgba(255,255,255,0.05);
+    border-radius:15px;
+    padding:10px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+  <div class="brand">CivicFix</div>
+  <div class="nav-links">
+    <a href="/home">Home</a>
+    <a href="/report">Report Issue</a>
+    <a href="/logout" id="logoutBtn">Logout</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- User Profile / Greeting -->
+<div>
+  <div class="user-profile">
+    <div class="info">
+      <h2>Hello, {{ username }}</h2>
+  </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <input type="text" id="searchInput" placeholder="Search by title, user, category">
+    <select id="statusFilter">
+      <option value="">All Status</option>
+      <option value="Pending">Pending</option>
+      <option value="In Progress">In Progress</option>
+      <option value="Resolved">Resolved</option>
+      <option value="Viewed">Viewed</option>
+    </select>
+  </div>
+   <!-- Complaints Table -->
+  <div class="table-section">
+    <h2>All Complaints</h2>
+    <table>
+      <thead>
+        <tr><th>User</th><th>Complaint</th><th>Status</th><th>Date</th><th>Action</th></tr>
+      </thead>
+      <tbody id="complaintsBody"></tbody>
+    </table>
+  </div>
+
+</div>
+<!-- View Complaint Modal (Read-Only User Version) -->
+<!-- View Complaint Modal (User Read-Only) -->
+<div id="viewModal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  z-index:999;
+  justify-content:center;
+  align-items:center;
+">
+
+  <div style="
+    width:560px;
+    max-width:94%;
+    background:linear-gradient(180deg,#020617,#0f172a);
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 30px 60px rgba(0,0,0,0.8);
+    border:1px solid rgba(255,255,255,0.08);
+  ">
+
+    <h2 style="
+      text-align:center;
+      margin-bottom:14px;
+      background:linear-gradient(135deg,#10B981,#3B82F6);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      font-weight:800;
+    ">
+      Complaint Details
+    </h2>
+
+    <div style="color:#D1D5DB;font-size:14px;line-height:1.7;">
+      <p><strong>User:</strong> <span id="mUser"></span></p>
+      <p><strong>Title:</strong> <span id="mTitle"></span></p>
+      <p><strong>Category:</strong> <span id="mCategory"></span></p>
+      <p><strong>Status:</strong> 
+        <span id="mStatus" style="
+          padding:3px 10px;
+          border-radius:20px;
+          background:rgba(59,130,246,0.2);
+          color:#93C5FD;
+          font-size:12px;
+        "></span>
+      </p>
+      <p><strong>Date:</strong> <span id="mDate"></span></p>
+    </div>
+
+    <!-- Description -->
+    <div style="margin-top:14px;">
+      <strong>Description</strong>
+      <div id="mDescription" style="
+        margin-top:6px;
+        background:#020617;
+        padding:12px;
+        border-radius:12px;
+        max-height:130px;
+        overflow-y:auto;
+        color:#D1D5DB;
+        font-size:14px;
+        border:1px solid rgba(255,255,255,0.05);
+      "></div>
+    </div>
+
+    <!-- Image Section -->
+    <div style="margin-top:16px;">
+      <strong>Uploaded Image</strong>
+      <div id="mImages" style="
+        margin-top:8px;
+        display:flex;
+        justify-content:center;
+      "></div>
+    </div>
+
+    <button onclick="closeModal()" style="
+      margin-top:18px;
+      width:100%;
+      padding:10px;
+      border:none;
+      border-radius:14px;
+      background:linear-gradient(135deg,#3B82F6,#2563EB);
+      color:white;
+      font-weight:700;
+      cursor:pointer;
+      transition:0.3s;
+    ">
+      Close
+    </button>
+
+  </div>
+</div>
+
+
+<!-- Top Dashboard Panel -->
+<div class="dashboard-top" style="display:flex; flex-wrap:wrap; gap:20px; justify-content:center; align-items:flex-start; margin-bottom:20px;">
+
+  <!-- Stats Cards -->
+  <div class="stats" style="display:flex; gap:15px; flex-wrap:wrap; justify-content:center;">
+      <div class="stat-card"><h3 id="totalComplaints">0</h3><p>Total Complaints</p></div>
+      <div class="stat-card"><h3 id="resolvedComplaints">0</h3><p>Resolved</p></div>
+      <div class="stat-card"><h3 id="pendingComplaints">0</h3><p>Pending</p></div>
+      <div class="stat-card"><h3 id="inProgressComplaints">0</h3><p>In Progress</p></div>
+  </div>
+
+  <!-- Charts Panel -->
+  <div class="charts-panel" style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
+      <!-- Pie Chart -->
+      <div class="chart-card" style="width: 250px; height:250px; background: rgba(255,255,255,0.05); border-radius:15px; padding:10px; box-shadow:0 5px 20px rgba(0,0,0,0.25);">
+          <canvas id="statusChart"></canvas>
+          <p style="text-align:center; margin-top:6px; color:#D1D5DB; font-weight:600;">Status Distribution</p>
+      </div>
+
+      <!-- Bar Chart -->
+      <div class="chart-card" style="width:250px; height:250px; background: rgba(255,255,255,0.05); border-radius:15px; padding:10px; box-shadow:0 5px 20px rgba(0,0,0,0.25);">
+          <canvas id="categoryChart"></canvas>
+          <p style="text-align:center; margin-top:6px; color:#D1D5DB; font-weight:600;">By Category</p>
+      </div>
+  </div>
+
+</div>
+
+<script>
+const searchInput = document.getElementById('searchInput');
+const statusFilter = document.getElementById('statusFilter');
+
+let complaintsData = [];
+
+function loadComplaints() {
+    fetch("/get-complaints")
+    .then(res => res.json())
+    .then(data => {
+        complaintsData = data;
+        renderTable();
+        renderStats();
+        renderCharts();
+    });
+}
+
+function renderTable() {
+    const tbody = document.getElementById('complaintsBody');
+    tbody.innerHTML = '';
+    const search = searchInput.value.toLowerCase();
+    const status = statusFilter.value;
+
+    complaintsData.forEach(c => {
+        if ((c.title.toLowerCase().includes(search) ||
+             c.username.toLowerCase().includes(search) ||
+             c.category.toLowerCase().includes(search))
+            && (status === '' || c.status === status)) {
+
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                <td>${c.username}</td>
+                <td>${c.title}</td>
+                <td>${c.status}</td>
+                <td>${c.created_at}</td>
+                <td>
+                  <button class="view-btn"
+                    onclick='openModal(${JSON.stringify(c)})'>
+                    View
+                  </button>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        }
+    });
+}
+
+function renderStats() {
+    let total=0, resolved=0, pending=0, inProgress=0;
+    complaintsData.forEach(c=>{
+        total++;
+        if(c.status==='Resolved') resolved++;
+        else if(c.status==='Pending') pending++;
+        else if(c.status==='In Progress') inProgress++;
+    });
+    document.getElementById('totalComplaints').innerText = total;
+    document.getElementById('resolvedComplaints').innerText = resolved;
+    document.getElementById('pendingComplaints').innerText = pending;
+    document.getElementById('inProgressComplaints').innerText = inProgress;
+}
+
+function renderCharts() {
+    const ctxStatus = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctxStatus, {
+        type: 'pie',
+        data: {
+            labels: ['Pending','In Progress','Resolved','Viewed'],
+            datasets: [{
+                data: [
+                    complaintsData.filter(c=>c.status==='Pending').length,
+                    complaintsData.filter(c=>c.status==='In Progress').length,
+                    complaintsData.filter(c=>c.status==='Resolved').length,
+                    complaintsData.filter(c=>c.status==='Viewed').length
+                ],
+                backgroundColor: ['#F59E0B','#3B82F6','#10B981','#60A5FA']
+            }]
+        },
+        options: { responsive:true, plugins:{legend:{position:'bottom'}} }
+    });
+
+    const ctxCat = document.getElementById('categoryChart').getContext('2d');
+    const categories = [...new Set(complaintsData.map(c=>c.category))];
+    const counts = categories.map(cat=>complaintsData.filter(c=>c.category===cat).length);
+    new Chart(ctxCat, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label:'Complaints by Category',
+                data: counts,
+                backgroundColor:'#3B82F6'
+            }]
+        },
+        options: { scales: { y:{ beginAtZero:true } }, responsive:true }
+    });
+}
+
+function openModal(c) {
+  document.getElementById("mUser").innerText = c.username;
+  document.getElementById("mTitle").innerText = c.title;
+  document.getElementById("mCategory").innerText = c.category;
+  document.getElementById("mStatus").innerText = c.status;
+  document.getElementById("mDate").innerText = c.created_at;
+  document.getElementById("mDescription").innerText =
+    c.description || "No description provided";
+
+  const imgBox = document.getElementById("mImages");
+  imgBox.innerHTML = "";
+
+  if (c.image) {
+    const img = document.createElement("img");
+    img.src = `/uploads/${c.image}`;
+    img.style.width = "100%";
+    img.style.maxWidth = "360px";
+    img.style.height = "200px";
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "16px";
+    img.style.border = "1px solid rgba(255,255,255,0.1)";
+    img.style.boxShadow = "0 10px 30px rgba(0,0,0,0.6)";
+    img.style.cursor = "pointer";
+    img.title = "Click to open full image";
+
+    img.onclick = () => {
+      window.open(img.src, "_blank");
+    };
+
+    imgBox.appendChild(img);
+  } else {
+    imgBox.innerHTML = `
+      <div style="
+        color:#9CA3AF;
+        font-size:13px;
+        padding:15px;
+        background:#020617;
+        border-radius:12px;
+        border:1px dashed rgba(255,255,255,0.15);
+      ">
+        No image uploaded
+      </div>
+    `;
+  }
+
+  document.getElementById("viewModal").style.display = "flex";
+}
+
+function closeModal() {
+  const modal = document.getElementById("viewModal");
+
+  // Hide modal
+  modal.style.display = "none";
+
+  // Optional cleanup (prevents old data flash)
+  document.getElementById("mImages").innerHTML = "";
+  document.getElementById("mDescription").innerText = "";
+}
+document.getElementById("viewModal").addEventListener("click", e => {
+  if (e.target.id === "viewModal") {
+    closeModal();
+  }
+});
+
+// Search & filter
+searchInput.addEventListener('input', renderTable);
+statusFilter.addEventListener('change', renderTable);
+
+// Initial load + refresh every 15s
+loadComplaints();
+setInterval(loadComplaints, 15000);
+
+document.getElementById("logoutBtn").addEventListener("click", e=>{
+    e.preventDefault();
+    window.location.href="/logout";
+});
+</script>
+
+</body>
+</html>

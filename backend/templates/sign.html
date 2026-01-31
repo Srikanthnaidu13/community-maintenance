@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicFix - Sign In / Sign Up</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+  body { min-height:100vh; background:#1f2937; display:flex; justify-content:center; align-items:center; padding:50px 20px; color:white; overflow-y:auto; position:relative; }
+  body::before { content:''; position:absolute; width:200%; height:200%; background: radial-gradient(circle at 20% 20%, rgba(59,130,246,0.2), transparent 40%), radial-gradient(circle at 80% 70%, rgba(16,185,129,0.2), transparent 40%); animation: float 20s linear infinite; z-index:0; }
+  @keyframes float { 0%{transform:translate(0,0);} 50%{transform:translate(-50px,50px);} 100%{transform:translate(0,0);} }
+
+  .brand { font-size:48px; font-weight:800; color:#10B981; background: linear-gradient(135deg, #10B981, #3B82F6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow:0 2px 6px rgba(0,0,0,0.3); letter-spacing:1px; text-align:center; margin-bottom:30px; }
+
+  .auth-section { position:relative; z-index:2; width:100%; max-width:400px; background: rgba(255,255,255,0.05); backdrop-filter: blur(30px); border-radius:25px; padding:40px 30px; box-shadow:0 15px 40px rgba(0,0,0,0.25); text-align:center; }
+
+  h2 { font-size:28px; margin-bottom:25px; color:white; }
+
+  .form-group { margin-bottom:20px; display:flex; flex-direction:column; text-align:left; }
+  .form-group label { font-weight:600; margin-bottom:6px; }
+  .form-group input { padding:12px 16px; border-radius:15px; border:none; font-size:15px; background: rgba(255,255,255,0.1); color:white; transition:0.3s; }
+  .form-group input::placeholder { color:#E5E7EB; }
+  .form-group input:focus { outline:none; background: rgba(255,255,255,0.2); box-shadow:0 0 12px rgba(255,255,255,0.4); }
+
+  .btn { background: linear-gradient(45deg, #10B981, #3B82F6); color:white; font-weight:700; padding:14px 30px; border:none; border-radius:20px; cursor:pointer; font-size:16px; transition:0.3s; width:100%; margin-top:10px; }
+  .btn:hover { transform: translateY(-2px); box-shadow:0 10px 25px rgba(0,0,0,0.4); }
+
+  .switch-btn { margin-top:15px; background:transparent; border:none; color:#10B981; font-weight:600; cursor:pointer; text-decoration:underline; }
+  .switch-btn:hover { color:#3B82F6; }
+
+  @media(max-width:450px){ .auth-section { padding:30px 20px; border-radius:20px; } .brand { font-size:40px; } }
+  .auth-section {
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:400px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(30px);
+  border-radius:25px;
+  padding:40px 30px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.25);
+  text-align:center;
+
+  display:flex;        /* add flex */
+  flex-direction:column; /* vertical stacking */
+  gap:25px;            /* spacing between brand and forms */
+}
+</style>
+</head>
+<body>
+
+    
+
+<section class="auth-section">
+  <!-- Brand inside auth-section -->
+  <div class="brand">CivicFix</div>
+
+  <!-- Sign In Form -->
+  <form id="signInForm">
+    <h2>Sign In</h2>
+    <div class="form-group">
+      <label for="signinEmail">Email</label>
+      <input type="email" id="signinEmail" placeholder="Enter your email" required>
+    </div>
+    <div class="form-group">
+      <label for="signinPassword">Password</label>
+      <input type="password" id="signinPassword" placeholder="Enter your password" required>
+    </div>
+    <button type="submit" class="btn">Sign In</button>
+    <button type="button" class="switch-btn" id="goToSignUp">New User? Register Here</button>
+  </form>
+
+  <!-- Sign Up Form -->
+  <form id="signUpForm" style="display:none;">
+    <h2>Sign Up</h2>
+    <div class="form-group">
+      <label for="signupName">Full Name</label>
+      <input type="text" id="signupName" placeholder="Enter your name" required>
+    </div>
+    <div class="form-group">
+      <label for="signupEmail">Email</label>
+      <input type="email" id="signupEmail" placeholder="Enter your email" required>
+    </div>
+    <div class="form-group">
+      <label for="signupPassword">Password</label>
+      <input type="password" id="signupPassword" placeholder="Enter a password" required>
+    </div>
+    <button type="submit" class="btn">Sign Up</button>
+    <button type="button" class="switch-btn" id="goToSignIn">Already have an account? Sign In</button>
+  </form>
+</section>
+
+<script>
+/* -------------------- ELEMENT REFERENCES -------------------- */
+const signInForm = document.getElementById("signInForm");
+const signUpForm = document.getElementById("signUpForm");
+
+const goToSignUp = document.getElementById("goToSignUp");
+const goToSignIn = document.getElementById("goToSignIn");
+
+const signupName = document.getElementById("signupName");
+const signupEmail = document.getElementById("signupEmail");
+const signupPassword = document.getElementById("signupPassword");
+
+const signinEmail = document.getElementById("signinEmail");
+const signinPassword = document.getElementById("signinPassword");
+
+/* -------------------- SWITCH TO SIGN UP -------------------- */
+goToSignUp.addEventListener("click", () => {
+  signInForm.style.display = "none";
+  signUpForm.style.display = "block";
+});
+
+/* -------------------- SWITCH TO SIGN IN -------------------- */
+goToSignIn.addEventListener("click", () => {
+  signUpForm.style.display = "none";
+  signInForm.style.display = "block";
+});
+
+/* -------------------- SIGN UP -------------------- */
+signUpForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const res = await fetch("http://127.0.0.1:5000/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+  username: signupName.value,
+  email: signupEmail.value,
+  password: signupPassword.value
+})
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    alert("Sign up successful! Redirecting to home...");
+    window.location.replace("/home");
+  } else {
+    alert("User already exists!");
+  }
+});
+
+/* -------------------- SIGN IN -------------------- */
+signInForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const res = await fetch("http://127.0.0.1:5000/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      email: signinEmail.value,
+      password: signinPassword.value
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    if (data.role === "admin") {
+      window.location.replace("/admin"); // redirect admin
+    } else {
+      window.location.replace("/home");  // redirect regular user
+    }
+  } else {
+    alert("Invalid credentials. Please check your email and password.");
+  }
+});
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicFix - Report Issue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+  body {
+    min-height:100vh;
+    background: #1f2937;
+    display:flex;
+    justify-content:center;
+    flex-direction:auto;
+    padding:50px 20px;
+    color:white;
+    overflow-y:auto;
+    position:relative;
+  }
+  body::before {
+    content:'';
+    position:fixed;
+    width:200%;
+    height:200%;
+    background: radial-gradient(circle at 20% 20%, rgba(59,130,246,0.2), transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(16,185,129,0.2), transparent 40%);
+    animation: float 20s linear infinite;
+    z-index:0;
+  }
+  @keyframes float { 0%{transform:translate(0,0);} 50%{transform:translate(-50px,50px);} 100%{transform:translate(0,0);} }
+
+  .navbar {
+    position:absolute;
+    top:20px;
+    left:40px;
+    right:40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    z-index:2;
+  }
+  .brand {
+    font-size:48px;
+    font-weight:800;
+    color: #10B981;
+    background: linear-gradient(135deg, #10B981, #3B82F6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    letter-spacing:1px;
+    cursor:pointer;
+  }
+  .navbar nav a {
+    color:white; text-decoration:none; font-weight:600;
+    padding:8px 18px; border-radius:8px; transition:0.3s;
+  }
+  .navbar nav a:hover { background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); }
+
+  .report-section {
+    position:relative;
+    z-index:2;
+    width:100%;
+    max-width:700px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(30px);
+    border-radius:25px;
+    padding:50px 40px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.25);
+    animation: slideUp 0.8s ease forwards;
+    text-align:left;
+  }
+  @keyframes slideUp { 0%{transform:translateY(50px);opacity:0;} 100%{transform:translateY(0);opacity:1;} }
+  .report-section h2 { font-size:32px; margin-bottom:12px; color:white; }
+  .report-section p { font-size:16px; margin-bottom:30px; color:#D1D5DB; }
+
+  .form-group { margin-bottom:22px; display:flex; flex-direction:column; }
+  .form-group label { font-weight:600; margin-bottom:8px; }
+  .form-group input, .form-group select, .form-group textarea {
+    padding:14px 18px; border-radius:15px; border:none; font-size:15px;
+    background: rgba(255,255,255,0.1); color:white; transition:0.3s;
+  }
+  .form-group input::placeholder, .form-group textarea::placeholder { color:#E5E7EB; }
+  .form-group select { appearance:none; background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.15)); color:white; padding-right:30px; }
+  .form-group select option { background: rgba(0,0,0,0.6); color:white; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; background: rgba(255,255,255,0.2); box-shadow:0 0 15px rgba(255,255,255,0.4); }
+  .form-group textarea { min-height:120px; resize:none; }
+
+  .btn {
+    background: linear-gradient(45deg, #10B981, #3B82F6);
+    color:white; font-weight:700; padding:14px 30px; border:none;
+    border-radius:20px; cursor:pointer; font-size:16px; transition:0.3s; width:100%;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow:0 10px 25px rgba(0,0,0,0.4); }
+
+  #imagePreview { margin-top:12px; display:flex; flex-wrap:wrap; gap:12px; }
+  #imagePreview img { width:140px; height:90px; object-fit:cover; border-radius:12px; border:1px solid rgba(255,255,255,0.4); box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+
+  @media(max-width:768px){
+    body { padding:20px; }
+    .report-section { padding:25px 20px; border-radius:20px; }
+    .navbar { flex-direction:column; align-items:flex-start; top:15px; left:15px; right:15px; gap:15px; }
+    .brand { font-size:40px; }
+  }
+</style>
+</head>
+
+<body>
+<header class="navbar">
+  <div class="brand" onclick="window.location.href='/home'">CivicFix</div>
+  <nav>
+    <a href="/home">Home</a>
+    <a href="/dashboard">Dashboard</a>
+  </nav>
+</header>
+
+<section class="report-section">
+  <h2>Report a Community Issue</h2>
+  <p>Keep your community safe, clean, and thriving. Submit issues easily.</p>
+
+  <form id="reportForm">
+    <div class="form-group">
+      <label for="title">Issue Title</label>
+      <input type="text" id="title" placeholder="Short title for the issue">
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" placeholder="Describe the issue in detail" ></textarea>
+    </div>
+
+    
+
+    <div class="form-group">
+      <label for="category">Category</label>
+      <select id="category" required>
+        <option value="">Select Category</option>
+        <option value="road">Road Repair</option>
+        <option value="garbage">Garbage / Trash</option>
+        <option value="streetlight">Streetlight</option>
+        <option value="water">Water / Drainage</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="priority">Priority</label>
+      <select id="priority">
+        <option value="">Select Priority</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+    </div>
+
+  <div class="form-group">
+  <label>Voice Description (Optional)</label>
+
+  <div style="
+    background: rgba(255,255,255,0.08);
+    padding:18px;
+    border-radius:16px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  ">
+
+    <button type="button" id="recordBtn" class="btn" style="width:auto;">
+      🎙 Start Recording
+    </button>
+
+    <audio id="audioPlayer" controls style="display:none;"></audio>
+
+    <small style="color:#9CA3AF;">
+      You can re-record anytime before submitting
+    </small>
+  </div>
+</div>
+
+
+<div class="form-group">
+  <label>Location</label>
+  <div style="display:flex;gap:12px;align-items:center;">
+    <div id="geoStatus" style="
+      flex:1;
+      padding:14px 18px;
+      border-radius:15px;
+      background: rgba(255,255,255,0.08);
+      color:#D1D5DB;
+      font-size:14px;
+    ">
+      📍 Location not fetched
+    </div>
+
+    <button type="button" onclick="getLocation()" class="btn" style="width:auto;padding:12px 18px;">
+      📍 Get
+    </button>
+  </div>
+</div>
+
+
+    <div class="form-group">
+      <label for="image">Upload Image</label>
+      <input type="file" id="image" accept="image/*">
+      <div id="imagePreview"></div>
+    </div>
+
+    <button type="submit" class="btn">Submit Issue</button>
+  </form>
+</section>
+<script>
+  const title = document.getElementById("title");
+const description = document.getElementById("description");
+const category = document.getElementById("category");
+const priority = document.getElementById("priority");
+
+/* ================= ELEMENTS ================= */
+const reportForm = document.getElementById("reportForm");
+const imageInput = document.getElementById("image");
+const imagePreview = document.getElementById("imagePreview");
+const geoStatus = document.getElementById("geoStatus");
+
+const recordBtn = document.getElementById("recordBtn");
+const audioPlayer = document.getElementById("audioPlayer");
+
+/* ================= STATE ================= */
+let latitude = null;
+let longitude = null;
+
+let mediaRecorder = null;
+let audioChunks = [];
+let audioBlob = null;
+let isRecording = false;
+
+/* ================= IMAGE PREVIEW ================= */
+imageInput.addEventListener("change", () => {
+  imagePreview.innerHTML = "";
+  const file = imageInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.createElement("img");
+    img.src = e.target.result;
+    imagePreview.appendChild(img);
+  };
+  reader.readAsDataURL(file);
+});
+
+/* ================= 🎙 VOICE RECORD ================= */
+recordBtn.addEventListener("click", async () => {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    alert("Voice recording not supported");
+    return;
+  }
+
+  /* 🔁 RE-RECORD LOGIC */
+  if (!isRecording) {
+    // Hide old audio visibly
+    audioPlayer.style.display = "none";
+    audioPlayer.src = "";
+    audioBlob = null;
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+    mediaRecorder.onstop = () => {
+      audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+      audioPlayer.src = URL.createObjectURL(audioBlob);
+      audioPlayer.style.display = "block";
+      recordBtn.innerText = "🔁 Re-record Voice";
+      isRecording = false;
+    };
+
+    mediaRecorder.start();
+    isRecording = true;
+    recordBtn.innerText = "⏹ Stop Recording";
+
+  } else {
+    mediaRecorder.stop();
+  }
+});
+
+/* ================= 📍 GEOLOCATION ================= */
+function getLocation() {
+  if (!navigator.geolocation) {
+    geoStatus.innerText = "❌ Geolocation not supported";
+    geoStatus.style.color = "#EF4444";
+    return;
+  }
+
+  geoStatus.innerText = "⏳ Detecting location...";
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      latitude = pos.coords.latitude;
+      longitude = pos.coords.longitude;
+      geoStatus.innerText = "📍 Location captured";
+      geoStatus.style.color = "#10B981";
+    },
+    () => {
+      geoStatus.innerText = "❌ Location failed";
+      geoStatus.style.color = "#EF4444";
+    }
+  );
+}
+
+/* ================= 🚀 FORM SUBMIT ================= */
+reportForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+
+  // OPTIONAL FIELDS
+  if (title.value.trim()) formData.append("title", title.value.trim());
+  if (description.value.trim()) formData.append("description", description.value.trim());
+  if (category.value) formData.append("category", category.value);
+  if (priority.value) formData.append("priority", priority.value);
+
+  if (latitude && longitude) {
+    formData.append("lat", latitude);
+    formData.append("lng", longitude);
+  }
+
+  if (imageInput.files.length > 0) {
+    formData.append("image", imageInput.files[0]);
+  }
+
+  if (audioBlob) {
+    formData.append("voice", audioBlob, "voice.webm");
+  }
+
+  fetch("/submit-complaint", {
+    method: "POST",
+    body: formData,
+    credentials: "include"   // ✅ keep session cookies if needed
+  })
+    .then(async (res) => {
+      // ✅ if backend throws 400/500, handle gracefully
+      let data = {};
+      try { data = await res.json(); } catch (e) {}
+      if (!res.ok) throw new Error(data.message || "Server error");
+      return data;
+    })
+    .then((data) => {
+      // ✅ check success from backend
+      if (!data.success) {
+        alert("❌ " + (data.message || "Submission failed"));
+        return;
+      }
+
+      alert("✅ Issue submitted successfully!");
+
+      // ✅ redirect to dashboard
+      window.location.href = "/dashboard";
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("❌ Submission failed: " + err.message);
+    });
+});
+
+</script>
+
+</body>
+</html>

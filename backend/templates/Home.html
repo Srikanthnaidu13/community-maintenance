@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivicFix - Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background: #1f2937;
+  color: white;
+  position: relative;
+  overflow-y: auto; /* scroll only if content exceeds viewport */
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* Animated background */
+/* Animated background */
+body::before {
+  content: '';
+  position: fixed; /* changed from absolute */
+  top: 0;
+  left: 0;
+  width: 100vw; /* full viewport width */
+  height: 100vh; /* full viewport height */
+  background: radial-gradient(circle at 20% 20%, rgba(59,130,246,0.1), transparent 40%),
+              radial-gradient(circle at 80% 70%, rgba(16,185,129,0.1), transparent 40%);
+  animation: float 25s linear infinite;
+  z-index: 0;
+}
+
+
+@keyframes float {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(-50px,50px); }
+  100% { transform: translate(0,0); }
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  background: rgba(31,41,55,0.7);
+  backdrop-filter: blur(10px);
+  z-index: 2;
+}
+
+.navbar .brand {
+  font-size: 36px;
+  font-weight: 800;
+  color: #10B981;
+  background: linear-gradient(135deg, #10B981, #3B82F6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar .nav-links a {
+  margin-left: 20px;
+  padding: 8px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.navbar .nav-links a:hover {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(5px);
+}
+
+/* Main container */
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 1000px;
+  margin: 100px auto 50px auto; /* enough top space for navbar */
+  padding: 20px;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(25px);
+  border-radius: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.hero h1 {
+  font-size: 36px;
+  margin-bottom: 15px;
+}
+
+.hero p {
+  font-size: 18px;
+  color: #D1D5DB;
+}
+
+/* Section style */
+.section {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(25px);
+  border-radius: 20px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+h2 {
+  color: white;
+  margin-bottom: 15px;
+  font-size: 28px;
+}
+
+/* Images */
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.images img {
+  width: 300px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Quick Action Cards */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 20px;
+  width: 200px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+}
+
+.card h3 {
+  margin-bottom: 10px;
+  font-size: 20px;
+  color: #10B981;
+}
+
+.card p {
+  font-size: 14px;
+  color: #D1D5DB;
+}
+
+/* Initiatives */
+.initiative-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: rgba(16,185,129,0.1);
+  padding: 20px;
+  border-radius: 15px;
+  transition: 0.3s;
+}
+
+.initiative-card:hover {
+  background: rgba(16,185,129,0.2);
+  transform: translateY(-5px);
+}
+
+.initiative-card h4 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.initiative-card p {
+  font-size: 14px;
+  color: #D1D5DB;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+/* Testimonials */
+.testimonial-card {
+  background: rgba(255,255,255,0.05);
+  padding: 20px;
+  border-radius: 15px;
+  margin: 10px;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.testimonial-card p {
+  font-style: italic;
+  color: #D1D5DB;
+}
+
+.testimonial-card h5 {
+  color: #10B981;
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+/* Contact */
+.contact {
+  text-align: center;
+  font-size: 16px;
+}
+
+.contact a {
+  color: #10B981;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contact a:hover {
+  color: #3B82F6;
+}
+
+/* Responsive */
+@media(max-width:768px){
+  .images img,
+  .grid .initiative-card {
+    width: 90%;
+    height: auto;
+  }
+
+  .cards,
+  .grid {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+/* ===== Feedback Modal (Premium) ===== */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.modal-content {
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.12),
+    rgba(255,255,255,0.05)
+  );
+  backdrop-filter: blur(35px);
+  border-radius: 22px;
+  padding: 40px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  animation: scaleIn 0.4s ease;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  font-size: 28px;
+}
+
+.close-btn {
+  font-size: 28px;
+  cursor: pointer;
+  color: #D1D5DB;
+  transition: 0.3s;
+}
+
+.close-btn:hover {
+  color: #F87171;
+}
+
+.modal-subtext {
+  margin: 12px 0 25px;
+  color: #D1D5DB;
+  font-size: 15px;
+}
+
+/* Form */
+.modal .form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal select,
+.modal textarea,
+.modal input {
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: none;
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-size: 15px;
+}
+
+.modal textarea {
+  min-height: 110px;
+  resize: none;
+}
+
+/* Star Rating */
+.star-rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.star-rating input {
+  display: none;
+}
+
+.star-rating label {
+  font-size: 30px;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #FBBF24;
+}
+
+/* Button */
+.modal .btn {
+  margin-top: 10px;
+  width: 100%;
+  background: linear-gradient(45deg, #10B981, #3B82F6);
+  padding: 14px;
+  border-radius: 18px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::before {
+  content: "📝";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.select-wrapper select {
+  padding-left: 42px;
+}
+.form-group label {
+  font-weight: 600;
+  color: #e5e7eb;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* SELECT BOX */
+.theme-select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #ffffff;
+  background: rgba(31, 41, 55, 0.9); /* dark glass */
+  border: 1.5px solid #10B981;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* FOCUS EFFECT */
+.theme-select:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
+/* DROPDOWN OPTIONS — CRITICAL */
+.theme-select option {
+  background-color: #1f2937;  /* MATCH BODY */
+  color: #ffffff;             /* ALWAYS VISIBLE */
+}
+
+/* HOVER / SELECTED OPTION */
+.theme-select option:hover,
+.theme-select option:checked {
+  background-color: #10B981;
+  color: #ffffff;
+}
+
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="brand">CivicFix</div>
+  <div class="nav-links">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/report">Report Issue</a>
+    <a href="#" id="logoutBtn">Logout</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Welcome to Your Community!</h1>
+    <p>Explore your neighborhood, report issues, and contribute to keeping your community safe and thriving.</p>
+  </div>
+
+  <!-- About Section -->
+  <div class="section">
+    <h2>About Our Community</h2>
+    <p>Our community has a rich history of collaboration and cultural heritage. CivicFix helps us keep track of issues and ensures everyone can contribute to a cleaner, safer environment.</p>
+    <div class="images">
+      <img src="{{ url_for('static', filename='images/park.jpg') }}">
+<img src="{{ url_for('static', filename='images/street.jpeg') }}">
+<img src="{{ url_for('static', filename='images/market.jpg') }}">
+    </div>
+  </div>
+
+  <!-- Quick Action Cards -->
+  <div class="cards">
+    <div class="card" onclick="window.location.href='/report'">
+      <h3>Report Issue</h3>
+      <p>Submit a new community issue quickly.</p>
+    </div>
+    <div class="card" onclick="window.location.href='/dashboard'">
+      <h3>View Dashboard</h3>
+      <p>Check reported issues and their status.</p>
+    </div>
+    <div class="card" onclick="openFeedback()">
+  <h3>Feedback</h3>
+  <p>Share your experience and help us improve CivicFix.</p>
+</div>
+<!-- Feedback Modal -->
+<div id="feedbackModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Community Feedback</h2>
+      <span class="close-btn" onclick="closeFeedback()">×</span>
+    </div>
+
+    <p class="modal-subtext">
+      Your voice matters. Help us make CivicFix better for everyone.
+    </p>
+
+    <form id="feedbackForm">
+
+      <div class="form-group">
+  <label>Feedback Type</label>
+  <select class="theme-select" required>
+    <option value="">Select feedback type</option>
+    <option>Suggestion</option>
+    <option>Complaint</option>
+    <option>Appreciation</option>
+  </select>
+</div>
+
+      <div class="form-group">
+        <label>Rate Your Experience</label>
+        <div class="star-rating">
+          <input type="radio" name="rating" id="star5"><label for="star5">★</label>
+          <input type="radio" name="rating" id="star4"><label for="star4">★</label>
+          <input type="radio" name="rating" id="star3"><label for="star3">★</label>
+          <input type="radio" name="rating" id="star2"><label for="star2">★</label>
+          <input type="radio" name="rating" id="star1"><label for="star1">★</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Your Feedback</label>
+        <textarea placeholder="Describe your experience or suggestion..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Email (optional)</label>
+        <input type="email" placeholder="you@example.com">
+      </div>
+
+      <button type="submit" class="btn">Submit Feedback</button>
+    </form>
+  </div>
+</div>
+
+  <!-- Our Initiatives -->
+  <div class="section">
+    <h2>Our Initiatives</h2>
+    <div class="grid">
+      <div class="initiative-card">
+        <h4>Clean-Up Drives</h4>
+        <p>Regular events to keep streets and parks clean.</p>
+      </div>
+      <div class="initiative-card">
+        <h4>Tree Plantation</h4>
+        <p>Promoting greenery and a healthier environment.</p>
+      </div>
+      <div class="initiative-card">
+        <h4>Awareness Programs</h4>
+        <p>Educating residents about civic responsibilities.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Issues -->
+  <div class="section">
+    <h2>Recent Issues</h2>
+    <div class="grid">
+      <div class="initiative-card">
+        <h4>Pothole on Main St</h4>
+        <p>Reported 2 days ago. Status: Pending</p>
+      </div>
+      <div class="initiative-card">
+        <h4>Streetlight not working</h4>
+        <p>Reported 1 week ago. Status: Resolved</p>
+      </div>
+      <div class="initiative-card">
+        <h4>Overflowing Trash</h4>
+        <p>Reported 3 days ago. Status: In Progress</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="section">
+    <h2>Community Feedback</h2>
+    <div class="grid">
+      <div class="testimonial-card">
+        <p>"CivicFix has made it so easy to report issues in our neighborhood!"</p>
+        <h5>Srikanth</h5>
+      </div>
+      <div class="testimonial-card">
+        <p>"I love seeing our community come together to solve problems."</p>
+        <h5>Harshith</h5>
+      </div>
+      <div class="testimonial-card">
+        <p>"The dashboard is super helpful and intuitive."</p>
+        <h5>Jawahar</h5>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Section -->
+  <div class="section contact">
+    <h2>Contact Us</h2>
+    <p>Email: <a href="mailto:contact@civicfix.com">contact@civicfix.com</a></p>
+  </div>
+
+</div>
+
+<script>
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    window.location.href = "/logout";
+  });
+
+function openFeedback() {
+  document.getElementById("feedbackModal").style.display = "flex";
+}
+
+function closeFeedback() {
+  document.getElementById("feedbackModal").style.display = "none";
+}
+
+document.getElementById("feedbackForm").addEventListener("submit", e => {
+  e.preventDefault();
+  alert("🙏 Thank you for helping improve CivicFix!");
+  closeFeedback();
+  e.target.reset();
+});
+   document.getElementById("logoutBtn").addEventListener("click", function (e) {
+    e.preventDefault();
+    window.location.href = "/logout";
+  });
+
+
+</script>
+
+</body>
+</html>
