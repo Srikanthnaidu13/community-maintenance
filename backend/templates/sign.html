@@ -125,6 +125,7 @@ signUpForm.addEventListener("submit", async (e) => {
   const res = await fetch("/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+      credentials: "include",   // ✅ add this
     body: JSON.stringify({
   username: signupName.value,
   email: signupEmail.value,
