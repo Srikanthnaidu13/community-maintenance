@@ -645,63 +645,66 @@ function loadComplaints() {
 ========================= */
 function openModal(id) {
   currentComplaintId = id;
+fetch("/get-complaints")
+  .then((res) => res.json())
+  .then((data) => {
+    const c = data.find((x) => x.id === id);
+    if (!c) return;
 
-  fetch("/get-complaints")
-    .then((res) => res.json())
-    .then((data) => {
-      const c = data.find((x) => x.id === id);
-      if (!c) return;
+    // modal elements
+    modalTitle.innerText = c.title || "";
+    modalDescription.innerText = c.description || "";
+    modalCategory.innerText = c.category || "";
+    modalPriority.innerText = c.priority || "";
 
-      // modal elements (must exist)
-      modalTitle.innerText = c.title || "";
-      modalDescription.innerText = c.description || "";
-      modalCategory.innerText = c.category || "";
-      modalPriority.innerText = c.priority || "";
+    const hasCoords =
+      c.lat != null && c.lng != null && c.lat !== "" && c.lng !== "";
+    modalLocation.innerText = hasCoords ? `${c.lat}, ${c.lng}` : "N/A";
 
-      const hasCoords = c.lat != null && c.lng != null && c.lat !== "" && c.lng !== "";
-      modalLocation.innerText = hasCoords ? `${c.lat}, ${c.lng}` : "N/A";
+    // ✅ IMAGE (use image_url from backend)
+    if (c.image_url) {
+      modalImage.src = c.image_url;
+      modalImage.style.display = "block";
+    } else {
+      modalImage.src = "";
+      modalImage.style.display = "none";
+    }
 
-      // image
-      if (c.image) {
-        modalImage.src = `/uploads/${c.image}`;
-        modalImage.style.display = "block";
-      } else {
-        modalImage.style.display = "none";
-      }
+    // ✅ VOICE (use voice_url from backend)
+    if (c.voice_url) {
+      modalVoice.src = c.voice_url;
+      voiceSection.style.display = "block";
+      modalVoice.load(); // ensures browser reloads new audio
+    } else {
+      modalVoice.pause?.();
+      modalVoice.src = "";
+      voiceSection.style.display = "none";
+    }
 
-      // voice
-      if (c.voice) {
-        modalVoice.src = `/uploads/${c.voice}`;
-        voiceSection.style.display = "block";
-      } else {
-        modalVoice.src = "";
-        voiceSection.style.display = "none";
-      }
+    // show modal
+    viewModal.style.display = "flex";
 
-      // show modal ABOVE map
-      viewModal.style.display = "flex";
+    // fly to marker + highlight
+    if (hasCoords) {
+      const lat = parseFloat(c.lat);
+      const lng = parseFloat(c.lng);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        mapInstance.flyTo([lat, lng], 16, { duration: 1.0 });
 
-      // fly to marker + highlight
-      if (hasCoords) {
-        const lat = parseFloat(c.lat);
-        const lng = parseFloat(c.lng);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          mapInstance.flyTo([lat, lng], 16, { duration: 1.0 });
+        const marker = mapMarkersById[c.id];
+        if (marker) {
+          marker.setStyle({ radius: 14, fillOpacity: 1 });
+          if (marker.openTooltip) marker.openTooltip();
 
-          const marker = mapMarkersById[c.id];
-          if (marker) {
-            marker.setStyle({ radius: 14, fillOpacity: 1 });
-            if (marker.openTooltip) marker.openTooltip();
-
-            setTimeout(() => {
-              marker.setStyle({ radius: 9, fillOpacity: 0.9 });
-            }, 1200);
-          }
+          setTimeout(() => {
+            marker.setStyle({ radius: 9, fillOpacity: 0.9 });
+          }, 1200);
         }
       }
-    })
-    .catch((err) => console.error("openModal error:", err));
-}
+    }
+  })
+  .catch((err) => console.error("openModal error:", err));
+
 
 closeModal.onclick = () => {
   viewModal.style.display = "none";

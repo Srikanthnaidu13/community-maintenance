@@ -101,12 +101,14 @@ def update_status(id):
 
 from datetime import datetime
 import os
-from flask import request
+from flask import url_for
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
 
 
 @app.route("/submit-complaint", methods=["POST"])
